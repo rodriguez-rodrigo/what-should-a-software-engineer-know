@@ -1,7 +1,12 @@
 import {Component} from "react";
 
-export class ClassComponent extends Component {
+export interface ClassComponentProps {
+    name: string;
+}
+
+export class ClassComponent extends Component<ClassComponentProps> {
+
     render() {
-        return <>Class component here!</>;
+        return <>Hello {this.props.name} Class component here!</>;
     }
 }

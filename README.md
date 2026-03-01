@@ -101,7 +101,221 @@ class Welcome extends React.Component {
 }
 ```
 
-More detailed example here https://github.com/rodriguez-rodrigo/what-should-a-software-engineer-know/examples/react/src/components/class-component.tsx
+More detailed example here https://github.com/rodriguez-rodrigo/what-should-a-software-engineer-know/blob/main/examples/react/src/components/class-component.tsx
+
+Functional components are a newer way of writing React components, they are JavaScript functions that return JSX, they can also use hooks to manage state and side effects
+
+```js
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>;
+}
+```
+
+### Lifecycle methods vs Hooks
+
+React components have a lifecycle, which is the series of methods that are called at different stages of a component's life:
+1. Mount: when the component is first rendered
+2. Update: when the component is re-rendered due to changes in props or state
+3. Unmount: when the component is removed from the DOM
+
+These lifecycles changes depending on the type of component, in class components is pretty simple since you have specific methods for each stage of the lifecycle:
+
+```tsx
+class MyComponent extends React.Component {
+    componentDidMount() {
+        console.log("Mounted")
+    }
+    
+    componentDidUpdate(prevProps, prevState) {
+        console.log("Updated")
+    }
+    
+    componentWillUnmount() {
+        console.log("Unmounted")
+    }
+    
+    shouldComponentUpdate(nextProps, nextState) {
+        // return true or false to determine if the component should re-render
+    }
+    
+    render() {
+        return <div>My Component < /div>;
+    }
+}
+```
+
+In the other hand functional components don't have lifecycle methods, instead they use hooks to manage side effects and state:
+
+```ts
+function MyComponent() {
+    useEffect(() => {
+        console.log("Mounted or Updated")
+        return () => {
+            console.log("Unmounted")
+        }
+    }, [])
+}
+```
+As you can see in the example above, the `useEffect` hook is used to manage side effects, and all the logic for mounting, updating and unmounting is handled inside the hook.
+
+- Mount
+```ts
+useEffect(() => {
+    console.log("Mounted")
+}, [])
+```
+
+- Update
+```ts
+useEffect(() => {
+    console.log("Updated")
+}, [state])
+```
+
+- Unmount
+```ts
+useEffect(() => {
+    return () => {
+        console.log("Unmounted")
+    }
+}, [])
+```
+
+- ShouldComponentUpdate
+```ts
+const MemoizedComponent = React.memo(MyComponent, (prevProps, nextProps) => {
+    // return true if props are equal, false if props are different
+})
+```
+
+### useMemo vs useCallback
+
+The `useMemo` hook is used to memoize the result of a function, it takes a function and an array of dependencies, and it returns the memoized result of the function, it is useful for optimizing performance by avoiding expensive calculations on every render.
+
+```ts
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+```
+
+The `useCallback` hook is used to memoize a function, it takes a function and an array of dependencies, and it returns the memoized version of the function, it is useful for optimizing performance by avoiding unnecessary re-renders of child components that depend on the function.
+
+```ts
+const memoizedCallback = useCallback((props) => {
+    doSomething(props);
+}, [a, b]);
+```
+
+### Context API vs  Redux
+
+### useState vs useReducer
+
+### useLayoutEffect vs useEffect
+
+The `useEffect` executes right after the render is committed to the screen, it is useful for performing side effects that don't require 
+blocking the browser from updating the screen, such as fetching data, setting up subscriptions, and manually changing the DOM in React components. 
+The `useLayoutEffect` executes synchronously after all DOM mutations but before the browser has a chance to paint, it is useful for performing side effects that require blocking the browser from updating the screen, such as measuring the layout of the DOM elements, or synchronously re-rendering the component.
+
+### Controlled vs Uncontrolled Components
+Controlled components are components that are controlled by React, they have their state managed by React, and they are updated through props, for example:
+
+```tsx
+function ControlledInput() {
+    const [value, setValue] = useState("");
+    return <input value={value} onChange={(e) => setValue(e.target.value)} />
+}
+```
+Uncontrolled components are components that are not controlled by React, they have their state managed by the DOM, and they are updated through refs, for example:
+```tsfunction UncontrolledInput() {
+    const inputRef = useRef(null);
+    const handleSubmit = () => {
+        console.log(inputRef.current.value);
+    }
+    return (<>
+        <input ref={inputRef} />
+        <button onClick={handleSubmit}>Submit</button>
+    </>)
+```
+
+### React Event System
+React has a synthetic event system that is a cross-browser wrapper around the browser's native event system, 
+it is designed to work the same across all browsers, and it also provides some additional features such as event delegation and batching updates:
+- Event delegation: React uses event delegation to handle events, it attaches a single event listener to the root of the document, and it uses event bubbling to determine which component should handle the event, this is more efficient than attaching an event listener to each component.
+- Batching updates: React batches updates to the DOM, it groups multiple updates together and applies them in a single batch, this is more efficient than applying each update individually, for example:
+```ts
+function MyComponent() {
+    const [count, setCount] = useState(0);
+    const handleClick = () => {
+        setCount(count + 1);
+        setCount(count + 1);
+        setCount(count + 1);
+    }
+    return <button onClick={handleClick}>Count: {count}</button>;
+```
+In the example above, when the button is clicked, the `handleClick` function is called, and it calls `setCount` three times, 
+but React will batch these updates together and only apply the last update, so the count will only increase by 1 instead of 3, 
+this is because React batches updates to the DOM, and it only applies the last update in the batch, this is more efficient than applying each update individually, 
+and it also prevents unnecessary re-renders of the component.
+
+### Prop types vs TypeScript
+Prop types is a runtime type checking for React props, it is a way to validate the props passed to a component, it is useful for catching bugs and providing better error messages, for example:
+```js
+import PropTypes from 'prop-types';
+
+function MyComponent(props) {
+    return <div>{props.name}</div>;
+}
+
+MyComponent.propTypes = {
+    name: PropTypes.string.isRequired,
+};
+```
+TypeScript is a statically typed superset of JavaScript that provides type checking at compile time, it is a way to catch bugs and provide better code completion and refactoring tools.
+Currently, `Typescript` is the most popular way to add type checking to React applications, it provides a more robust and scalable solution for type checking than prop types,
+
+> Anyway if you are building a library or a component that will be used by other developers, it is a good practice to use prop types to provide runtime type checking and better error messages, even if you are using TypeScript for your application.
+
+### Refs
+Refs are a way to access the DOM elements directly in React, they are created using the `useRef` hook, and they can be used to access the DOM elements, for example:
+```ts
+function MyComponent() {
+    const inputRef = useRef(null);
+    const handleClick = () => {
+        console.log(inputRef.current.value);
+    }
+    return (<>
+        <input ref={inputRef} />
+        <button onClick={handleClick}>Submit</button>
+    </>)
+}
+```
+
+#### Forwarding refs
+Forwarding refs is a technique for automatically passing a ref through a component to one of its children, it is useful for creating reusable components that can be used in different contexts, for example:
+
+```tsx
+const MyInput = React.forwardRef((props, ref) => {
+    return <input ref={ref} {...props} />;
+});
+
+function MyComponent() {
+    const inputRef = useRef(null);
+    const handleClick = () => {
+        console.log(inputRef.current.value);
+    }
+    return (<>
+        <MyInput ref={inputRef} />
+        <button onClick={handleClick}>Submit</button>
+    </>)
+}
+```
+In the example above, the `MyInput` component is a reusable component that can be used in different contexts, and it forwards the ref to the underlying `input` element, so when we use the `MyInput` component in the `MyComponent`, we can access the `input` element directly using the `inputRef`.
+
+### Virtual DOM
+The virtual DOM is a lightweight representation of the actual DOM, it is a JavaScript object that represents the structure of the DOM, it is used by React to optimize the rendering process, when a component's state or props change, React creates a new virtual DOM tree, and it compares it with the previous virtual DOM tree, and it calculates the minimum number of changes needed to update the actual DOM.
+React will re-render the component when:
+1. The component's state changes
+2. The component's props change
+3. The parent component re-renders
+
 
 ---
 
