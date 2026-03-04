@@ -1,13 +1,54 @@
 # what-should-a-software-engineer-know
 
 # Architecture & System Design Theory
+
+## Diagrams
+- C4 Model: Context, Container, Component, Code
+- Sequence Diagrams
+- Class Diagrams
+- Deployment Diagrams
+- Data Flow Diagrams
+- Entity-Relationship Diagrams
+- State Diagrams
+
+## Design principles & Architecture Design
+- Core principles:
+  - SOLID
+  - DRY
+  - KISS
+  - YAGNI
+- Architecture Styles:
+  - Layered Architecture (Controller -> Service -> Repository)
+  - Monolithic Architecture
+  - Microservices Architecture
+  - Event-driven Architecture
+  - Hexagonal Architecture (Ports and Adapters)
+  - Clean Architecture
+  - CQRS (Command Query Responsibility Segregation)
+  - Event Sourcing
+
 ## CAP Theorem
-### CAP Trade-offs
-## ACID vs BASE
+The CAP theorem states that in distributed systems you can only guarantee 2 out of 3 properties:
+- (C) Consistency: Every read get the latest write, all the nodes see the same data.
+- (A) Availability: Every request get a response
+- (P) Partition Tolerance: The system continues to operate despite network communication failures between nodes.
+
+If you choose Consistency and Partition Tolerance, system may reject requests.
+If you choose Availability and Partition, the system may return stale data.
+You cannot choose Consistency and Availability in practice because Partition Tolerance is a must in distributed systems.
+
+> We can state this a little bit more, Partition Tolerance is a must, we have to think about network failures, so we have to choose between Consistency and Availability.
+
 ## Idempotency
 ## Event-driven vs Architecture
 ## Saga pattern (orchestration vs choreography)
 ## Circuit breaker pattern
+Is a design pattern in distribuited systems to prevent your application from repeatedly calling a service that is failing.
+It works like a electrical circuit breaker and it has three states:
+- Closed: Normal state, requests go through.
+- Open: No requests are sent to the service, after a timeout, the circuit breaker goes to half-open state.
+- Half-open: Allow a few requests, if they succeed, the circuit breaker goes back to closed state, if they fail, the circuit breaker goes back to open state.
+
 ## Backpressure
 ## Bulkhead pattern
 ## Exponential backoff
@@ -206,7 +247,22 @@ const memoizedCallback = useCallback((props) => {
 
 ### Context API vs  Redux
 
+The Context API is a built-in feature of React that allows you to share state across components without having to pass props down manually at every level, it is useful for simple state management and for avoiding prop drilling.
+Redux is a state management library that provides a predictable state container for JavaScript applications, it is useful for managing complex state and for providing a single source of truth for the state of the application.
+
 ### useState vs useReducer
+
+The `useState` hook is a simple way to manage state in a functional component, it takes an initial state and returns an array with the current state and a function to update it, it is useful for managing simple state that doesn't require complex logic.
+
+```ts
+const [count, setCount] = useState(0);
+```
+
+The `useReducer` hook is a more powerful way to manage state in a functional component, it takes a reducer function and an initial state, and it returns the current state and a dispatch function to update it, it is useful for managing complex state that requires complex logic.
+
+```ts
+const [state, dispatch] = useReducer(reducer, initialState);
+```
 
 ### useLayoutEffect vs useEffect
 
@@ -316,6 +372,69 @@ React will re-render the component when:
 2. The component's props change
 3. The parent component re-renders
 
+### Redux-thunk vs Redux-saga
+Redux-thunk is a middleware that allows you to write action creators that return a function instead of an action, it is useful for handling asynchronous actions in Redux, for example:
+```ts
+function fetchData() {
+    return (dispatch) => {
+        dispatch({ type: 'FETCH_DATA_REQUEST' });
+        fetch('/api/data')
+            .then(response => response.json())
+            .then(data => dispatch({ type: 'FETCH_DATA_SUCCESS', payload: data }))
+            .catch(error => dispatch({ type: 'FETCH_DATA_FAILURE', payload: error }));
+    };
+}
+```
+Redux-saga is a middleware that allows you to write sagas, which are generator functions that can be used to handle side effects in Redux, it is useful for handling complex asynchronous actions and for managing the flow of actions in a more declarative way, for example:
+```ts
+function* fetchDataSaga() {
+    try {
+        yield put({ type: 'FETCH_DATA_REQUEST' });
+        const response = yield call(fetch, '/api/data');
+        const data = yield response.json();
+        yield put({ type: 'FETCH_DATA_SUCCESS', payload: data });
+    } catch (error) {
+        yield put({ type: 'FETCH_DATA_FAILURE', payload: error });
+    }
+```
+
+### Code reuse strategies
+- Higher-order components (HOCs): A higher-order component is a function that takes a component and returns a new component, it is useful for reusing component logic and for creating reusable components, for example:
+```tsx
+function withLoading(Component) {
+    return function WithLoadingComponent({ isLoading, ...props }) {
+        if (isLoading) {
+            return <div>Loading...</div>;
+        }
+        return <Component {...props} />;
+    };
+```
+- Render props: A render prop is a function prop that a component uses to know what to render, it is useful for sharing code between components using a prop whose value is a function, for example:
+```tsx
+function MouseTracker({ render }) {
+  const [x, setX] = React.useState(0);
+  return <div onMouseMove={e => setX(e.clientX)}>{render(x)}</div>;
+}
+<MouseTracker render={x => <p>Mouse X: {x}</p>} />
+```
+
+- Custom hooks: A custom hook is a function that uses one or more of the built-in hooks, it is useful for reusing stateful logic between components, for example:
+```ts
+function useCounter(initial = 0) {
+  const [count, setCount] = React.useState(initial);
+  const increment = () => setCount(c => c + 1);
+  return { count, increment };
+}
+const { count, increment } = useCounter();
+```
+
+- Utility functions: Utility functions are regular JavaScript functions that can be used to perform common tasks, they are useful for reusing code that doesn't depend on the component's state or props, for example:
+```tsx
+function formatDate(date) {
+    return date.toLocaleDateString();
+}
+<p>{formatDate(new Date())}</p>
+```
 
 ---
 
@@ -363,9 +482,203 @@ This is called page-based pagination, it is simple to implement, but it has some
 We can also use other pagination strategies like cursor-based pagination, where we use a cursor to keep track of the last resource returned, and we can use that cursor to get the next set of resources, for example:
 - `GET /users?cursor=abc123&size=10` -> get the next 10 users after the user with cursor abc123
 
+## Java Core Skills
+
+## Java 8/11/17/21/2
+- Java 8: Lambda expressions, Stream API, Optional, Date and Time API
+```java
+// Lambda expression & Stream API
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+List<String> filteredNames = names.stream()
+    .filter(name -> name.startsWith("A"))
+    .collect(Collectors.toList());
+
+// Optional
+String greeting = Optional.of("Hello")
+    .map(s -> s + " World")
+    .orElse("Hi");
+
+// Date and Time API
+LocalDate today = LocalDate.now();
+```
+- Java 11: var keyword, HttpClient, String methods
+```java
+// var keyword
+var message = "Hello, World!";
+
+// HttpClient
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/data"))
+    .build();
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+// String methods
+String str = " Hello, World! ";
+String trimmed = str.strip(); // "Hello, World!"
+```
+
+- Java 17: Sealed classes, Records, Pattern matching for instanceof
+```java
+// Sealed classes
+public sealed class Shape permits Circle, Rectangle {}
+
+// Records
+public record Point(int x, int y) {}
+
+// Pattern matching for instanceof
+class Example {
+    public void example(Object obj) {
+         if (obj instanceof String s) {
+             System.out.println(s.toUpperCase());
+         }
+    }
+}
+```
+
+- Java 21: Virtual threads, Structured concurrency, Record patterns
+```java
+// Virtual threads
+Thread.startVirtualThread(() -> {
+    System.out.println("Hello from a virtual thread!");
+});
+
+// Structured concurrency
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    Future<String> future1 = scope.fork(() -> {
+        // Task 1
+        return "Result from task 1";
+    });
+    Future<String> future2 = scope.fork(() -> {
+        // Task 2
+        return "Result from task 2";
+    });
+    scope.join();
+    String result1 = future1.resultNow();
+    String result2 = future2.resultNow();
+    System.out.println(result1);
+    System.out.println(result2);
+}
+// Record patterns
+record Point(int x, int y) {}
+public void example(Object obj) {
+    if (obj instanceof Point(int x, int y)) {
+        System.out.println("Point coordinates: " + x + ", " + y);
+    }
+}
+```
+
+- Java 23: Pattern matching for switch, Record patterns enhancements, Virtual threads improvements
+```java
+// Pattern matching for switch
+public String example(Object obj) {
+    return switch (obj) {
+        case String s -> "It's a string: " + s;
+        case Integer i -> "It's an integer: " + i;
+        default -> "Unknown type";
+    };
+}
+```
+
+- Java 25: Record patterns enhancements, Virtual threads improvements, Structured concurrency improvements
+
+### JVM Internals
+- Class loading: The process of loading classes into the JVM, including the class loader hierarchy and the different types of class loaders (bootstrap, platform, application).
+- Memory management: The JVM manages memory through a combination of heap and stack memory.
+  - Heap memory is used for dynamic memory allocation.
+  - Stack memory is used for method execution and local variables.
+- Garbage collection: The process of automatically freeing up memory that is no longer being used, the JVM has several garbage collection algorithms (e.g., Serial, Parallel, CMS, G1) that are optimized for different use cases.
+- Just-In-Time (JIT) compilation: JIT reads bytecode and watches for "hot" code paths, which are executed frequently, and compiles them into native machine code for improved performance.
+- Java Native Interface (JNI): A framework that allows Java code to interact with native applications and libraries written in other languages (e.g., C, C++).
+
+### Functional Programming in Java
+Java is primarily an object-oriented programming language, but it also has functional programming features that were introduced in Java 8, such as lambda expressions, the Stream API, and the Optional class. These features allow developers to write more concise and expressive code, and they also enable a more functional programming style in Java.
+- Lambda expressions: A lambda expression is a concise way to represent an anonymous function, it can be used to create instances of functional interfaces (interfaces with a single abstract method), for example:
+- Stream API: The Stream API is a powerful tool for working with collections of data, it allows you to perform operations on collections in a functional style, such as filtering, mapping, and reducing, for example:
+- Optional: The Optional class is a container object that may or may not contain a non-null value, it is used to represent the presence or absence of a value, and it provides methods for working with the value if it is present, for example:
+
+### Spring Core
+Is the foundation module of the Spring Framework, it provides the core features of the framework, such as:
+- Dependency injection.
+- Aspect-oriented programming.
+- Support for various configuration styles (e.g., XML, Java-based, annotation-based).
+
+## OOP Principles
+- Encapsulation: The principle of hiding the internal state and behavior of an object and only exposing a public interface.
+- Inheritance: The principle of creating new classes based on existing classes, allowing for code reuse and the creation of a class hierarchy.
+- Polymorphism: The principle of allowing objects of different classes to be treated as objects of a common superclass, enabling flexibility and extensibility in code.
+- Abstraction: The principle of hiding complex implementation details and exposing only the necessary features of an object, allowing for a simpler and more intuitive interface.
 ---
 
+## RMM (Richardson Maturity Model)
+The Richardson Maturity Model is a way to evaluate the maturity of a RESTful API, it is based on the level of REST constraints that the API conforms to, it has four levels:
+- Level 0: The API does not conform to any REST constraints, it is a simple HTTP API that uses HTTP as a transport protocol, but it does not use HTTP verbs or status codes correctly, for example:
+```http
+POST /users
+{ "name": "Alice" }
+```
+- Level 1: The API conforms to the resource constraint, it uses URIs to identify resources, but it does not use HTTP verbs or status codes correctly, for example:
+```http
+POST /users
+{ "name": "Alice" }
+```
+- Level 2: The API conforms to the resource and HTTP verb constraints, it uses URIs to identify resources and it uses HTTP verbs correctly, but it does not use HTTP status codes correctly, for example:
+```http
+POST /users
+{ "name": "Alice" }
+```
+- Level 3: The API conforms to all REST constraints, it uses URIs to identify resources, it uses HTTP verbs correctly, and it uses HTTP status codes correctly, for example:
+```http
+POST /users
+{ "name": "Alice" }
+```
+
+## MAP (Microservice API Pattern)
+Is a catalog of best practices for designing microservice APIs in microservices architecture:
+1. API Endpoint Patterns: How you define the shape of your API:
+   - Operation-based: explicit actions ( createOrder() )
+   - Resource-based: REST style (e.g., /users, /users/{id}).
+   - Event-driven API: publish/subscribe
+2. API Interaction patterns
+   - Request-Response: synchronous communication
+   - Messaging: asynchronous communication
+   - Streaming: real-time data flow
+3. API Evolution patterns
+   - Versioning
+   - Deprecation
+   - Backward compatibility
+4. API Security patterns
+   - Authentication
+   - Authorization
+   - Rate limiting
+   - Idempotency
+
+## API Gateway Pattern
+Is a single entry point for all clients to access the microservices in a microservices architecture, it is responsible for:
+- Request routing
+- Authentication and authorization
+- Rate limiting
+- Logging
+- Aggregating multiple service calls
+- Hiding internal architecture
+
 # Databases
+
+## ACID vs BASE
+ACID are 4 properties that guarantee transactions typically in systems like PostgreSQL or MySQL:
+- Atomicity: The entire transaction is treated as a single unit of work, either all operations succeed or all operations fail.
+- Consistency: The transaction must bring the database from one valid state to another valid state, it must maintain the integrity of the database.
+- Isolation: The transaction must be isolated from other transactions, it should not interfere with other transactions that are running concurrently.
+- Durability: Once a transaction is committed, it will remain committed even in the case of a system failure, it guarantees that the changes made by the transaction will not be lost.
+
+In the other hand, BASE is the opposite of ACID, and it is used in NoSQL databases Like MongoDB, Cassandra, Amazon DynamoDB:
+- Basically Available: The system will always be available, even in the data is not consistent, it prioritizes availability over consistency.
+- Soft state: The state can change over time, event without input.
+- Eventual consistency: The data will eventually become consistent.
+
+---
+
+
 
 ---
 

@@ -2,6 +2,7 @@ import './App.css'
 import {ClassComponent} from "./components/class-component.tsx";
 import {ClassComponentLifecycle} from "./components/class-component-lifecycle.tsx";
 import {FunctionalComponentLifecycle} from "./components/functional-component-lifecycle.tsx";
+import {ReducerComponent} from "./components/reducer-component.tsx";
 
 function App() {
     return <div style={{display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px'}}>
@@ -24,6 +25,10 @@ function App() {
                 <tr>
                     <td>Functional Component Lifecycle</td>
                     <td><FunctionalComponentLifecycle/></td>
+                </tr>
+                <tr>
+                    <td>Reducer Component</td>
+                    <td><ReducerComponent/></td>
                 </tr>
             </tbody>
         </table>
