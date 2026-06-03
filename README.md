@@ -152,6 +152,24 @@ function Welcome(props) {
 }
 ```
 
+
+
+### State management in React
+In React the state control depends of the complexity of the project, and should be the nearest to the component that needs it, for example:
+- Local state: like useState or useReducer is the simplest way to manage state in a component.
+- Context: is a way to share state between components inside the same provider without having to pass props down manually
+- Redux: is a state management library that provides a predictable state container for JavaScript applications.
+- SWR: Stale while revalidate is a React Hooks library for data fetching, it provides a simple and efficient way to fetch data and manage the state of the data in your React components.
+- React Query: is a library for fetching, caching and updating asynchronous data in React applications.
+
+### Advantages of having a global state management solution
+- Single source of truth: data is stored in a single place, making it easier to manage and debug.
+- Predictable state updates: state change controlled through actions and reducers, making it easier to understand how state changes over time.
+- Debugging tools: many libraries provide tools for debugging.
+- Less prop drilling: avoid passing props down multiple levels of components.
+- Improve scalability: as the application grows, different components access to the same state without duplicating.
+- Easier testing: state management libraries often provide tools for testing, making it easier to test components that rely on global state.
+
 ### Lifecycle methods vs Hooks
 
 React components have a lifecycle, which is the series of methods that are called at different stages of a component's life:
@@ -435,6 +453,24 @@ function formatDate(date) {
 }
 <p>{formatDate(new Date())}</p>
 ```
+
+### How to Split your components:
+- Single reponsibility principle: Each component should have only one responsability.
+- Level of abstraction: 
+  - Presentational component: receives props and renders UI, and emits events.
+  - Smart components: manages state and logic, and passes props to presentational components.
+- Feature-based: In bigger applications, it is common to split components by domain.
+- Reusability:
+  - Small components
+  - Avoid big components
+  - Avoid components too specific
+  - Move common logic to custom hooks or utility functions
+- When needed some performance:
+  - React.memo for memoaizing components
+  - useMemo for memoizing values
+  - useCallback for memoizing functions
+
+
 
 ---
 
